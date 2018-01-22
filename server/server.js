@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
   socket.on('createMessage', (body) => {
     console.log('Received new message');
 
-    socket.emit('newMessage', {
+    io.emit('newMessage', {
       sender: body.sender,
       text: body.text,
       createdAt: Date.now()});
