@@ -1,7 +1,8 @@
-const http     = require('http');
-const express  = require('express');
-const socketIO = require('socket.io');
-const path     = require('path');
+const http              = require('http');
+const express           = require('express');
+const socketIO          = require('socket.io');
+const path              = require('path');
+var { generateMessage } = require('./utils/message');
 
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '/../public');
@@ -19,15 +20,9 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
   console.log('New user connected');
 
-  socket.emit('newMessage', {
-    sender: 'Admin',
-    text: 'Welcome to the chat channel! Keep it clean, yo.',
-    createdAt: Date.now()});
+  socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat channel! Keep it clean, yo.'));
 
-  socket.broadcast.emit('newMessage', {
-    sender: 'Admin',
-    text: 'A new user has joined the chat room.',
-    createdAt: Date.now()});
+  socket.broadcast.emit('newMessage', generateMessage('Admin', 'A new user has joined the chat room.'));
 
   socket.on('createMessage', (body) => {
     console.log('Received new message');
@@ -39,11 +34,7 @@ io.on('connection', (socket) => {
     //   createdAt: Date.now()});
 
     // Sends to everyone except this socket
-    socket.broadcast.emit('newMessage', {
-      sender: body.sender,
-      text: body.text,
-      createdAt: Date.now()});
-
+    socket.broadcast.emit('newMessage', generateMessage(body.sender, body.text));
   });
 
   socket.on('disconnect', (socket) => {
